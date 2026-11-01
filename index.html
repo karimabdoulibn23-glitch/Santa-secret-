@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
 
+<!DOCTYPE html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Family Secret Santa</title>
 
   <style>
@@ -15,630 +14,285 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 30px 16px;
-      font-family: Calibri, Arial, sans-serif;
-      background: radial-gradient(circle at top, #263858, #101a30 65%);
-      color: #f8f5ed;
+      font-family: Arial, sans-serif;
+      background: #101827;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
 
     .container {
       width: 100%;
-      max-width: 650px;
-      margin: 0 auto;
-    }
-
-    .header {
+      max-width: 460px;
+      background: #1c293b;
+      padding: 30px 24px;
+      border-radius: 20px;
       text-align: center;
-      padding: 35px 15px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
     }
 
-    .gift {
-      font-size: 48px;
-      margin-bottom: 12px;
+    .icon {
+      font-size: 52px;
+      margin-bottom: 10px;
     }
 
     h1 {
-      font-size: 34px;
-      margin: 0 0 10px;
+      font-size: 28px;
+      margin: 5px 0 10px;
     }
 
     .subtitle {
-      color: #c6cddd;
-      font-size: 16px;
-    }
-
-    .panel {
-      background: #ffffff;
-      color: #17233b;
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 15px 40px #0004;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 23px;
-    }
-
-    p {
+      color: #bac5d5;
       line-height: 1.5;
+      margin-bottom: 25px;
     }
 
-    input {
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 9px;
+      color: #dce5f2;
+    }
+
+    select {
       width: 100%;
       padding: 15px;
-      border: 1px solid #d6dae2;
+      border: 1px solid #40516a;
       border-radius: 10px;
+      background: #101827;
+      color: white;
       font-size: 16px;
-      margin: 12px 0;
+      margin-bottom: 18px;
     }
 
     button {
+      width: 100%;
+      padding: 15px;
       border: none;
       border-radius: 10px;
-      background: #bd9655;
-      color: white;
-      padding: 14px 20px;
-      font-size: 16px;
+      background: #d7a84b;
+      color: #182233;
+      font-size: 17px;
       font-weight: bold;
       cursor: pointer;
     }
 
     button:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
-    button:hover:not(:disabled) {
-      background: #a57d40;
-    }
-
-    .main-button {
-      width: 100%;
-    }
-
-    .person-card {
-      border: 1px solid #e2e5eb;
-      background: #fafafa;
-      border-radius: 14px;
-      padding: 18px;
-      margin-top: 15px;
-    }
-
-    .person-name {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .result {
+    #result {
       display: none;
-      margin-top: 15px;
-      padding: 18px;
-      background: #edf5ef;
-      border-radius: 12px;
-      text-align: center;
+      margin-top: 22px;
+      padding: 22px 15px;
+      background: #263951;
+      border: 1px solid #d7a84b;
+      border-radius: 14px;
     }
 
-    .result-name {
+    #recipient {
+      color: #f2c66d;
       font-size: 25px;
       font-weight: bold;
-      color: #28643e;
-      margin-top: 8px;
-    }
-
-    .status {
-      margin-top: 15px;
-      font-size: 15px;
-      color: #a13b36;
-      text-align: center;
       overflow-wrap: anywhere;
+      margin: 12px 0;
     }
 
-    .hidden {
-      display: none;
+    #status {
+      color: #bac5d5;
+      margin-top: 18px;
+      line-height: 1.5;
+      min-height: 24px;
     }
 
-    .footer {
-      text-align: center;
-      color: #c6cddd;
-      margin-top: 25px;
+    #remaining {
+      color: #f2c66d;
+      margin-top: 12px;
+    }
+
+    .hide-button {
+      margin-top: 12px;
+      background: #40516a;
+      color: white;
       font-size: 14px;
+    }
+
+    .note {
+      color: #9eacbf;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 24px;
     }
   </style>
 </head>
 
 <body>
+  <main class="container">
+    <div class="icon">🎄</div>
+    <h1>Family Secret Santa</h1>
 
-  <div class="container">
+    <p class="subtitle">
+      Choisis ton nom et tire ta carte.
+      Chaque carte ne peut être tirée qu'une seule fois.
+    </p>
 
-    <div class="header">
-      <div class="gift">🎁</div>
+    <label for="participant">Sélectionne ton nom :</label>
 
-      <h1>Family Secret Santa</h1>
+    <select id="participant">
+      <option value="">Choisir un nom</option>
+      <option value="Thelma">Thelma (4 tirages)</option>
+      <option value="Fluvia">Fluvia (2 tirages)</option>
+      <option value="Maman Odette">Maman Odette</option>
+      <option value="William">William</option>
+      <option value="Aurore">Aurore</option>
+      <option value="Violette">Violette</option>
+      <option value="Nada">Nada</option>
+      <option value="Nika">Nika</option>
+      <option value="Alimasi">Alimasi</option>
+      <option value="Eloise">Eloise</option>
+      <option value="Sharon">Sharon</option>
+      <option value="Karim">Karim</option>
+    </select>
 
-      <div class="subtitle">
-        A little surprise for Christmas
-      </div>
+    <button id="drawButton" disabled>
+      Tirer une carte
+    </button>
+
+    <div id="result">
+      <p>Tu as tiré :</p>
+      <div id="recipient"></div>
+      <button id="hideButton" class="hide-button">
+        Cacher le résultat
+      </button>
     </div>
 
-    <div class="panel">
+    <div id="remaining"></div>
+    <div id="status"></div>
 
-      <div id="login">
-
-        <h2>Welcome!</h2>
-
-        <p>
-          Enter your personal access code to open your Secret Santa cards.
-        </p>
-
-        <form id="loginForm">
-
-          <input
-            id="accessCode"
-            type="password"
-            placeholder="Enter your access code"
-            autocomplete="off"
-            required
-          >
-
-          <button
-            class="main-button"
-            id="loginButton"
-            type="submit"
-          >
-            Continue
-          </button>
-
-        </form>
-
-      </div>
-
-      <div id="content" class="hidden"></div>
-
-      <div id="status" class="status" role="status"></div>
-
-    </div>
-
-    <div class="footer">
-      Made with love for our family ❤️
-    </div>
-
-  </div>
+    <p class="note">
+      Une personne à la fois. Après chaque tirage,
+      passe le téléphone à la personne suivante.
+      Les cartes utilisées sont retirées pour tout le monde.
+    </p>
+  </main>
 
   <script>
-    // SUPABASE CONFIGURATION
-
     const SUPABASE_URL =
       "https://lwrsatgmvnsfjthqnoji.supabase.co";
 
     const SUPABASE_KEY =
       "sb_publishable_DyMTcdthXI4slB4t47SccA_tv58Qs5O";
 
+    const participantSelect =
+      document.getElementById("participant");
 
-    // HTML ELEMENTS
+    const drawButton =
+      document.getElementById("drawButton");
 
-    const login = document.getElementById("login");
-    const content = document.getElementById("content");
-    const statusBox = document.getElementById("status");
-    const loginForm = document.getElementById("loginForm");
-    const loginButton = document.getElementById("loginButton");
-    const accessInput = document.getElementById("accessCode");
+    const resultBox =
+      document.getElementById("result");
 
+    const recipientBox =
+      document.getElementById("recipient");
 
-    // SESSION
+    const statusBox =
+      document.getElementById("status");
 
-    let accessToken = "";
+    const remainingBox =
+      document.getElementById("remaining");
 
+    const hideButton =
+      document.getElementById("hideButton");
 
-    // DISPLAY MESSAGES
+    let drawing = false;
 
-    function showStatus(message, error = true) {
-      statusBox.textContent = message;
+    participantSelect.addEventListener("change", () => {
+      resultBox.style.display = "none";
+      recipientBox.textContent = "";
+      remainingBox.textContent = "";
+      statusBox.textContent = "";
 
-      statusBox.style.color = error
-        ? "#a13b36"
-        : "#28643e";
-    }
+      drawButton.disabled = !participantSelect.value;
+      drawButton.textContent = "Tirer une carte";
+    });
 
+    hideButton.addEventListener("click", () => {
+      resultBox.style.display = "none";
+      recipientBox.textContent = "";
+    });
 
-    // CALL SUPABASE EDGE FUNCTIONS
+    drawButton.addEventListener("click", async () => {
+      const participantName = participantSelect.value;
 
+      if (!participantName || drawing) return;
 
-
-     async function callFunction(name, data) {
-  let response;
-
-  try {
-    response = await fetch(
-      `${SUPABASE_URL}/functions/v1/${name}`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "text/plain"
-        },
-        body: JSON.stringify(data)
-      }
-    );
-
-  } catch (error) {
-    console.error("Network error:", error);
-    throw new Error(
-      "Cannot reach Supabase. Check the function URL and deployment."
-    );
-  }
-
-  let result;
-
-  try {
-    result = await response.json();
-  } catch {
-    throw new Error(
-      `Supabase returned an invalid response. HTTP ${response.status}`
-    );
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      result.error || `Request failed. HTTP ${response.status}`
-    );
-  }
-
-  return result;
-}
-
-    // CREATE HTML ELEMENTS SAFELY
-
-    function createElement(tag, className, text) {
-
-      const element = document.createElement(tag);
-
-      if (className) {
-        element.className = className;
-      }
-
-      if (text !== undefined) {
-        element.textContent = text;
-      }
-
-      return element;
-    }
-
-
-    // REVEAL ONE PERSON'S CARD
-
-    async function revealCard(person, button, resultBox) {
-
-      button.disabled = true;
-
-      button.textContent = "Opening your card...";
-
-      showStatus("Opening your Secret Santa card...", false);
+      drawing = true;
+      drawButton.disabled = true;
+      drawButton.textContent = "Tirage en cours...";
+      statusBox.textContent = "Connexion au tirage...";
+      remainingBox.textContent = "";
+      resultBox.style.display = "none";
 
       try {
-
-        const result = await callFunction(
-          "family-reveal",
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/family-reveal`,
           {
-            token: accessToken,
-            participant_id: person.id
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": SUPABASE_KEY
+            },
+            body: JSON.stringify({
+              participant_name: participantName
+            })
           }
         );
 
+        const data = await response.json();
 
-        if (!result.success || !result.recipient) {
-
-          throw new Error("The recipient could not be found.");
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error || "Le tirage n'a pas fonctionné."
+          );
         }
 
-
-        resultBox.replaceChildren();
-
-
-        resultBox.appendChild(
-          createElement(
-            "p",
-            "",
-            "You are buying a gift for:"
-          )
-        );
-
-
-        resultBox.appendChild(
-          createElement(
-            "div",
-            "result-name",
-            result.recipient
-          )
-        );
-
-
+        recipientBox.textContent = data.recipient;
         resultBox.style.display = "block";
 
-        button.textContent = "Card opened";
-
-        showStatus(
-          "Your Secret Santa card is ready!",
-          false
-        );
-
-      } catch (error) {
-
-        button.disabled = false;
-
-        button.textContent = "Reveal card";
-
-        showStatus(error.message);
-      }
-    }
-
-
-    // CREATE A PERSON'S CARD
-
-    function createPersonCard(person, individual = false) {
-
-      const card = createElement(
-        "div",
-        "person-card"
-      );
-
-
-      card.appendChild(
-        createElement(
-          "div",
-          "person-name",
-          person.name
-        )
-      );
-
-
-      const button = createElement(
-        "button",
-        "",
-        individual
-          ? "Reveal my recipient"
-          : "Reveal card"
-      );
-
-
-      const resultBox = createElement(
-        "div",
-        "result"
-      );
-
-
-      button.addEventListener("click", () => {
-
-        revealCard(
-          person,
-          button,
-          resultBox
-        );
-
-      });
-
-
-      card.appendChild(button);
-
-      card.appendChild(resultBox);
-
-      return card;
-    }
-
-
-    // DISPLAY GROUP OR INDIVIDUAL ACCESS
-
-    function displayAccess(data) {
-
-      login.classList.add("hidden");
-
-      content.classList.remove("hidden");
-
-      content.replaceChildren();
-
-      statusBox.textContent = "";
-
-
-      // GROUP ACCESS
-
-      if (data.type === "group") {
-
-        content.appendChild(
-          createElement(
-            "h2",
-            "",
-            data.group.name
-          )
-        );
-
-
-        content.appendChild(
-          createElement(
-            "p",
-            "",
-            "Choose one person's card at a time."
-          )
-        );
-
-
-        if (!Array.isArray(data.participants)) {
-
-          throw new Error("Invalid participant list.");
+        if (typeof data.remaining === "number") {
+          if (data.remaining > 0) {
+            remainingBox.textContent =
+              `${data.remaining} tirage(s) restant(s) pour ce choix.`;
+          } else {
+            remainingBox.textContent =
+              "Tous les tirages de ce choix sont terminés.";
+          }
         }
 
+        statusBox.textContent = "Tirage réussi !";
 
-        data.participants.forEach(person => {
-
-          content.appendChild(
-            createPersonCard(person)
-          );
-
-        });
-
-      }
-
-
-      // INDIVIDUAL ACCESS
-
-      else if (data.type === "individual") {
-
-        content.appendChild(
-          createElement(
-            "h2",
-            "",
-            "Your Secret Santa card"
-          )
-        );
-
-
-        content.appendChild(
-          createElement(
-            "p",
-            "",
-            "Your card is ready. Open it to discover your recipient."
-          )
-        );
-
-
-        content.appendChild(
-          createPersonCard(
-            data.participant,
-            true
-          )
-        );
-
-      }
-
-      else {
-
-        throw new Error("Unknown access type.");
-      }
-    }
-
-
-    // CHECK ACCESS CODE
-
-    async function loginWithToken(token) {
-
-      if (!token) {
-
-        showStatus("Please enter your access code.");
-
-        return;
-      }
-
-
-      showStatus(
-        "Checking your access code...",
-        false
-      );
-
-      loginButton.disabled = true;
-
-
-      try {
-
-        const data = await callFunction(
-          "family-access",
-          { token }
-        );
-
-
-        accessToken = token;
-
-        sessionStorage.setItem(
-          "secretSantaToken",
-          token
-        );
-
-
-        displayAccess(data);
-
-        accessInput.value = "";
+        if (data.remaining === 0) {
+          drawButton.textContent = "Tirage terminé";
+          drawButton.disabled = true;
+        } else {
+          drawButton.textContent = "Tirer une autre carte";
+          drawButton.disabled = false;
+        }
 
       } catch (error) {
+        statusBox.textContent =
+          error.message || "Une erreur est survenue.";
 
-        showStatus(error.message);
-
-        login.classList.remove("hidden");
-
-        content.classList.add("hidden");
-
-        if (error.message === "Invalid access code") {
-
-          sessionStorage.removeItem(
-            "secretSantaToken"
-          );
-
-          accessToken = "";
-        }
+        drawButton.textContent = "Réessayer";
+        drawButton.disabled = false;
 
       } finally {
-
-        loginButton.disabled = false;
+        drawing = false;
       }
-    }
-
-
-    // LOGIN FORM
-
-    loginForm.addEventListener(
-      "submit",
-      async (event) => {
-
-        event.preventDefault();
-
-        const token = accessInput.value.trim();
-
-        await loginWithToken(token);
-
-      }
-    );
-
-
-    // READ ACCESS CODE FROM PERSONAL LINK
-
-    const params = new URLSearchParams(
-      window.location.search
-    );
-
-    const linkToken =
-      params.get("code") ||
-      params.get("token");
-
-
-    if (linkToken) {
-
-      sessionStorage.setItem(
-        "secretSantaToken",
-        linkToken
-      );
-
-
-      // Remove code from visible address
-
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-      );
-    }
-
-
-    // RESTORE PREVIOUS SESSION
-
-    const savedToken =
-      linkToken ||
-      sessionStorage.getItem("secretSantaToken");
-
-
-    if (savedToken) {
-
-      loginWithToken(savedToken);
-    }
-
+    });
   </script>
-
 </body>
 </html>
