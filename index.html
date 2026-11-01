@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Family Secret Santa</title>
 
   <style>
@@ -15,8 +17,7 @@
       min-height: 100vh;
       padding: 30px 16px;
       font-family: Calibri, Arial, sans-serif;
-      background:
-        radial-gradient(circle at top, #263858, #101a30 65%);
+      background: radial-gradient(circle at top, #263858, #101a30 65%);
       color: #f8f5ed;
     }
 
@@ -88,6 +89,10 @@
       cursor: not-allowed;
     }
 
+    button:hover:not(:disabled) {
+      background: #a57d40;
+    }
+
     .main-button {
       width: 100%;
     }
@@ -127,6 +132,7 @@
       font-size: 15px;
       color: #a13b36;
       text-align: center;
+      overflow-wrap: anywhere;
     }
 
     .hidden {
@@ -143,11 +149,14 @@
 </head>
 
 <body>
+
   <div class="container">
 
     <div class="header">
       <div class="gift">🎁</div>
+
       <h1>Family Secret Santa</h1>
+
       <div class="subtitle">
         A little surprise for Christmas
       </div>
@@ -156,10 +165,15 @@
     <div class="panel">
 
       <div id="login">
+
         <h2>Welcome!</h2>
-        <p>Enter your personal access code to open your Secret Santa cards.</p>
+
+        <p>
+          Enter your personal access code to open your Secret Santa cards.
+        </p>
 
         <form id="loginForm">
+
           <input
             id="accessCode"
             type="password"
@@ -168,15 +182,21 @@
             required
           >
 
-          <button class="main-button" id="loginButton" type="submit">
+          <button
+            class="main-button"
+            id="loginButton"
+            type="submit"
+          >
             Continue
           </button>
+
         </form>
+
       </div>
 
       <div id="content" class="hidden"></div>
 
-      <div id="status" class="status"></div>
+      <div id="status" class="status" role="status"></div>
 
     </div>
 
@@ -186,12 +206,17 @@
 
   </div>
 
-  <script type="module">
+  <script>
+    // SUPABASE CONFIGURATION
+
     const SUPABASE_URL =
       "https://lwrsatgmvnsfjthqnoji.supabase.co";
 
     const SUPABASE_KEY =
       "sb_publishable_DyMTcdthXI4slB4t47SccA_tv58Qs5O";
+
+
+    // HTML ELEMENTS
 
     const login = document.getElementById("login");
     const content = document.getElementById("content");
@@ -200,110 +225,243 @@
     const loginButton = document.getElementById("loginButton");
     const accessInput = document.getElementById("accessCode");
 
+
+    // SESSION
+
     let accessToken = "";
+
+
+    // DISPLAY MESSAGES
 
     function showStatus(message, error = true) {
       statusBox.textContent = message;
-      statusBox.style.color = error ? "#a13b36" : "#28643e";
+
+      statusBox.style.color = error
+        ? "#a13b36"
+        : "#28643e";
     }
 
-    async function callFunction(name, data) {
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/${name}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_KEY,
-            "Authorization": `Bearer ${SUPABASE_KEY}`
-          },
-          body: JSON.stringify(data)
-        }
-      );
 
-      const result = await response.json();
+    // CALL SUPABASE EDGE FUNCTIONS
+
+    async function callFunction(name, data) {
+
+      let response;
+
+      try {
+
+        response = await fetch(
+          `${SUPABASE_URL}/functions/v1/${name}`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": SUPABASE_KEY
+            },
+
+            body: JSON.stringify(data)
+          }
+        );
+
+      } catch (error) {
+
+        throw new Error(
+          "Connection failed. Check your internet connection and Supabase CORS settings."
+        );
+      }
+
+
+      let result;
+
+      try {
+
+        result = await response.json();
+
+      } catch {
+
+        throw new Error(
+          `Supabase returned an invalid response (HTTP ${response.status}).`
+        );
+      }
+
 
       if (!response.ok) {
-        throw new Error(result.error || "Something went wrong.");
+
+        throw new Error(
+          result.error ||
+          `Request failed (HTTP ${response.status}).`
+        );
       }
 
       return result;
     }
 
+
+    // CREATE HTML ELEMENTS SAFELY
+
     function createElement(tag, className, text) {
+
       const element = document.createElement(tag);
-      if (className) element.className = className;
-      if (text !== undefined) element.textContent = text;
+
+      if (className) {
+        element.className = className;
+      }
+
+      if (text !== undefined) {
+        element.textContent = text;
+      }
+
       return element;
     }
 
+
+    // REVEAL ONE PERSON'S CARD
+
     async function revealCard(person, button, resultBox) {
+
       button.disabled = true;
+
       button.textContent = "Opening your card...";
 
+      showStatus("Opening your Secret Santa card...", false);
+
       try {
-        const result = await callFunction("family-reveal", {
-          token: accessToken,
-          participant_id: person.id
-        });
+
+        const result = await callFunction(
+          "family-reveal",
+          {
+            token: accessToken,
+            participant_id: person.id
+          }
+        );
+
+
+        if (!result.success || !result.recipient) {
+
+          throw new Error("The recipient could not be found.");
+        }
+
 
         resultBox.replaceChildren();
 
-        resultBox.appendChild(
-          createElement("p", "", "You are buying a gift for:")
-        );
 
         resultBox.appendChild(
-          createElement("div", "result-name", result.recipient)
+          createElement(
+            "p",
+            "",
+            "You are buying a gift for:"
+          )
         );
+
+
+        resultBox.appendChild(
+          createElement(
+            "div",
+            "result-name",
+            result.recipient
+          )
+        );
+
 
         resultBox.style.display = "block";
+
         button.textContent = "Card opened";
-        showStatus("Your Secret Santa card is ready!", false);
+
+        showStatus(
+          "Your Secret Santa card is ready!",
+          false
+        );
 
       } catch (error) {
+
         button.disabled = false;
+
         button.textContent = "Reveal card";
 
         showStatus(error.message);
       }
     }
 
+
+    // CREATE A PERSON'S CARD
+
     function createPersonCard(person, individual = false) {
-      const card = createElement("div", "person-card");
+
+      const card = createElement(
+        "div",
+        "person-card"
+      );
+
 
       card.appendChild(
-        createElement("div", "person-name", person.name)
+        createElement(
+          "div",
+          "person-name",
+          person.name
+        )
       );
+
 
       const button = createElement(
         "button",
         "",
-        individual ? "Reveal my recipient" : "Reveal card"
+        individual
+          ? "Reveal my recipient"
+          : "Reveal card"
       );
 
-      const resultBox = createElement("div", "result");
+
+      const resultBox = createElement(
+        "div",
+        "result"
+      );
+
 
       button.addEventListener("click", () => {
-        revealCard(person, button, resultBox);
+
+        revealCard(
+          person,
+          button,
+          resultBox
+        );
+
       });
 
+
       card.appendChild(button);
+
       card.appendChild(resultBox);
 
       return card;
     }
 
+
+    // DISPLAY GROUP OR INDIVIDUAL ACCESS
+
     function displayAccess(data) {
+
       login.classList.add("hidden");
+
       content.classList.remove("hidden");
+
       content.replaceChildren();
+
       statusBox.textContent = "";
 
+
+      // GROUP ACCESS
+
       if (data.type === "group") {
+
         content.appendChild(
-          createElement("h2", "", data.group.name)
+          createElement(
+            "h2",
+            "",
+            data.group.name
+          )
         );
+
 
         content.appendChild(
           createElement(
@@ -313,14 +471,36 @@
           )
         );
 
+
+        if (!Array.isArray(data.participants)) {
+
+          throw new Error("Invalid participant list.");
+        }
+
+
         data.participants.forEach(person => {
-          content.appendChild(createPersonCard(person));
+
+          content.appendChild(
+            createPersonCard(person)
+          );
+
         });
 
-      } else if (data.type === "individual") {
+      }
+
+
+      // INDIVIDUAL ACCESS
+
+      else if (data.type === "individual") {
+
         content.appendChild(
-          createElement("h2", "", "Your Secret Santa card")
+          createElement(
+            "h2",
+            "",
+            "Your Secret Santa card"
+          )
         );
+
 
         content.appendChild(
           createElement(
@@ -330,51 +510,124 @@
           )
         );
 
+
         content.appendChild(
-          createPersonCard(data.participant, true)
+          createPersonCard(
+            data.participant,
+            true
+          )
         );
+
+      }
+
+      else {
+
+        throw new Error("Unknown access type.");
       }
     }
 
+
+    // CHECK ACCESS CODE
+
     async function loginWithToken(token) {
+
       if (!token) {
-        throw new Error("Please enter your access code.");
+
+        showStatus("Please enter your access code.");
+
+        return;
       }
 
-      showStatus("Checking your access code...", false);
+
+      showStatus(
+        "Checking your access code...",
+        false
+      );
+
       loginButton.disabled = true;
 
+
       try {
-        const data = await callFunction("family-access", { token });
+
+        const data = await callFunction(
+          "family-access",
+          { token }
+        );
+
 
         accessToken = token;
-        sessionStorage.setItem("secretSantaToken", token);
+
+        sessionStorage.setItem(
+          "secretSantaToken",
+          token
+        );
+
 
         displayAccess(data);
 
+        accessInput.value = "";
+
       } catch (error) {
+
         showStatus(error.message);
+
         login.classList.remove("hidden");
+
         content.classList.add("hidden");
 
+        if (error.message === "Invalid access code") {
+
+          sessionStorage.removeItem(
+            "secretSantaToken"
+          );
+
+          accessToken = "";
+        }
+
       } finally {
+
         loginButton.disabled = false;
       }
     }
 
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      await loginWithToken(accessInput.value.trim());
-    });
 
-    // Read a code from the personal link
-    const params = new URLSearchParams(window.location.search);
-    const linkToken = params.get("code") || params.get("token");
+    // LOGIN FORM
+
+    loginForm.addEventListener(
+      "submit",
+      async (event) => {
+
+        event.preventDefault();
+
+        const token = accessInput.value.trim();
+
+        await loginWithToken(token);
+
+      }
+    );
+
+
+    // READ ACCESS CODE FROM PERSONAL LINK
+
+    const params = new URLSearchParams(
+      window.location.search
+    );
+
+    const linkToken =
+      params.get("code") ||
+      params.get("token");
+
 
     if (linkToken) {
-      sessionStorage.setItem("secretSantaToken", linkToken);
 
-      // Remove the access code from the visible address
+      sessionStorage.setItem(
+        "secretSantaToken",
+        linkToken
+      );
+
+
+      // Remove code from visible address
+
       window.history.replaceState(
         {},
         document.title,
@@ -382,13 +635,20 @@
       );
     }
 
-    // Reopen the session when the page is refreshed
+
+    // RESTORE PREVIOUS SESSION
+
     const savedToken =
-      linkToken || sessionStorage.getItem("secretSantaToken");
+      linkToken ||
+      sessionStorage.getItem("secretSantaToken");
+
 
     if (savedToken) {
+
       loginWithToken(savedToken);
     }
+
   </script>
+
 </body>
 </html>
