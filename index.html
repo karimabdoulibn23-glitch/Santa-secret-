@@ -244,59 +244,49 @@
 
     // CALL SUPABASE EDGE FUNCTIONS
 
-    async function callFunction(name, data) {
 
-      let response;
 
-      try {
+     async function callFunction(name, data) {
+  let response;
 
-        response = await fetch(
-          `${SUPABASE_URL}/functions/v1/${name}`,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json",
-              "apikey": SUPABASE_KEY
-            },
-
-            body: JSON.stringify(data)
-          }
-        );
-
-      } catch (error) {
-
-        throw new Error(
-          "Connection failed. Check your internet connection and Supabase CORS settings."
-        );
+  try {
+    response = await fetch(
+      `${SUPABASE_URL}/functions/v1/${name}`,
+      {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(data)
       }
+    );
 
+  } catch (error) {
+    console.error("Network error:", error);
+    throw new Error(
+      "Cannot reach Supabase. Check the function URL and deployment."
+    );
+  }
 
-      let result;
+  let result;
 
-      try {
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error(
+      `Supabase returned an invalid response. HTTP ${response.status}`
+    );
+  }
 
-        result = await response.json();
+  if (!response.ok) {
+    throw new Error(
+      result.error || `Request failed. HTTP ${response.status}`
+    );
+  }
 
-      } catch {
-
-        throw new Error(
-          `Supabase returned an invalid response (HTTP ${response.status}).`
-        );
-      }
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          result.error ||
-          `Request failed (HTTP ${response.status}).`
-        );
-      }
-
-      return result;
-    }
-
+  return result;
+}
 
     // CREATE HTML ELEMENTS SAFELY
 
