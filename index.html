@@ -56,14 +56,16 @@
       color: #dce5f2;
     }
 
-    select {
+    input {
       width: 100%;
       padding: 15px;
       border: 1px solid #40516a;
       border-radius: 10px;
       background: #101827;
       color: white;
-      font-size: 16px;
+      font-size: 22px;
+      text-align: center;
+      letter-spacing: 8px;
       margin-bottom: 18px;
     }
 
@@ -84,6 +86,10 @@
       cursor: not-allowed;
     }
 
+    #drawButton {
+      margin-top: 12px;
+    }
+
     #result {
       display: none;
       margin-top: 22px;
@@ -101,11 +107,21 @@
       margin: 12px 0;
     }
 
+    #accessInfo {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      background: #263951;
+      border-radius: 10px;
+      color: #f2c66d;
+    }
+
     #status {
       color: #bac5d5;
       margin-top: 18px;
       line-height: 1.5;
       min-height: 24px;
+      overflow-wrap: anywhere;
     }
 
     #remaining {
@@ -113,7 +129,7 @@
       margin-top: 12px;
     }
 
-    .hide-button {
+    .secondary-button {
       margin-top: 12px;
       background: #40516a;
       color: white;
@@ -126,6 +142,10 @@
       line-height: 1.5;
       margin-top: 24px;
     }
+
+    [hidden] {
+      display: none !important;
+    }
   </style>
 </head>
 
@@ -135,47 +155,55 @@
     <h1>Family Secret Santa</h1>
 
     <p class="subtitle">
-      Choisis ton nom et tire ta carte.
+      Entre ton code privé pour accéder à ton tirage.
       Chaque carte ne peut être tirée qu'une seule fois.
     </p>
 
-    <label for="participant">Sélectionne ton nom :</label>
+    <section id="loginSection">
+      <label for="accessCode">Ton code privé :</label>
 
-    <select id="participant">
-      <option value="">Choisir un nom</option>
-      <option value="Thelma">Thelma (4 tirages)</option>
-      <option value="Fluvia">Fluvia (2 tirages)</option>
-      <option value="Maman Odette">Maman Odette</option>
-      <option value="William">William</option>
-      <option value="Aurore">Aurore</option>
-      <option value="Violette">Violette</option>
-      <option value="Nada">Nada</option>
-      <option value="Nika">Nika</option>
-      <option value="Alimasi">Alimasi</option>
-      <option value="Eloise">Eloise</option>
-      <option value="Sharon">Sharon</option>
-      <option value="Karim">Karim</option>
-    </select>
+      <input
+        id="accessCode"
+        type="password"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        maxlength="4"
+        autocomplete="off"
+        placeholder="••••"
+        aria-label="Code privé à quatre chiffres"
+      >
 
-    <button id="drawButton" disabled>
-      Tirer une carte
+      <button id="validateButton">
+        Valider mon code
+      </button>
+    </section>
+
+    <div id="accessInfo"></div>
+
+    <button id="drawButton" hidden disabled>
+      Tirer ma carte
     </button>
 
     <div id="result">
       <p>Tu as tiré :</p>
       <div id="recipient"></div>
-      <button id="hideButton" class="hide-button">
+
+      <button id="hideButton" class="secondary-button">
         Cacher le résultat
       </button>
     </div>
 
     <div id="remaining"></div>
-    <div id="status"></div>
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <button id="changeCodeButton" class="secondary-button" hidden>
+      Utiliser un autre code
+    </button>
 
     <p class="note">
-      Chaque personne peut ouvrir le lien pour effectuer son tirage.
-  Quand tu as terminé, préviens Karim.
-  Les cartes utilisées sont retirées pour tout le monde.
+      Garde ton code privé. Ne le partage pas avec les autres.
+      Quand tu as terminé tes tirages, préviens Karim.
+      Les cartes utilisées sont retirées pour tout le monde.
     </p>
   </main>
 
@@ -186,37 +214,109 @@
     const SUPABASE_KEY =
       "sb_publishable_DyMTcdthXI4slB4t47SccA_tv58Qs5O";
 
-    const participantSelect =
-      document.getElementById("participant");
+    const accessCodeInput = document.getElementById("accessCode");
+    const validateButton = document.getElementById("validateButton");
+    const drawButton = document.getElementById("drawButton");
+    const resultBox = document.getElementById("result");
+    const recipientBox = document.getElementById("recipient");
+    const statusBox = document.getElementById("status");
+    const remainingBox = document.getElementById("remaining");
+    const accessInfo = document.getElementById("accessInfo");
+    const hideButton = document.getElementById("hideButton");
+    const changeCodeButton = document.getElementById("changeCodeButton");
+    const loginSection = document.getElementById("loginSection");
 
-    const drawButton =
-      document.getElementById("drawButton");
-
-    const resultBox =
-      document.getElementById("result");
-
-    const recipientBox =
-      document.getElementById("recipient");
-
-    const statusBox =
-      document.getElementById("status");
-
-    const remainingBox =
-      document.getElementById("remaining");
-
-    const hideButton =
-      document.getElementById("hideButton");
-
+    let currentToken = "";
     let drawing = false;
+    let drawComplete = false;
 
-    participantSelect.addEventListener("change", () => {
-      resultBox.style.display = "none";
-      recipientBox.textContent = "";
-      remainingBox.textContent = "";
-      statusBox.textContent = "";
+    async function callFunction(functionName, body) {
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/${functionName}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY
+          },
+          body: JSON.stringify(body)
+        }
+      );
 
-      drawButton.disabled = !participantSelect.value;
-      drawButton.textContent = "Tirer une carte";
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Une erreur est survenue.");
+      }
+
+      return data;
+    }
+
+    validateButton.addEventListener("click", async () => {
+      const token = accessCodeInput.value.trim();
+
+      if (!/^\d{4}$/.test(token)) {
+        statusBox.textContent = "Entre un code valide de 4 chiffres.";
+        return;
+      }
+
+      validateButton.disabled = true;
+      validateButton.textContent = "Vérification...";
+      statusBox.textContent = "Vérification du code...";
+      accessInfo.style.display = "none";
+
+      try {
+        const data = await callFunction("family-access", { token });
+
+        if (!data.ok) {
+          throw new Error(data.error || "Code invalide.");
+        }
+
+        currentToken = token;
+
+        let accessName = "";
+
+        if (data.type === "group" && data.group) {
+          accessName = data.group.name;
+        } else if (data.type === "individual" && data.participant) {
+          accessName = data.participant.name;
+        } else {
+          throw new Error("Réponse de sécurité incorrecte.");
+        }
+
+        loginSection.hidden = true;
+        accessInfo.textContent = `Code accepté. Accès autorisé : ${accessName}`;
+        accessInfo.style.display = "block";
+
+        drawButton.hidden = false;
+        drawButton.disabled = false;
+        drawButton.textContent = "Tirer ma carte";
+
+        changeCodeButton.hidden = false;
+        statusBox.textContent = "Tu peux maintenant effectuer ton tirage.";
+
+      } catch (error) {
+        currentToken = "";
+        statusBox.textContent = error.message || "Impossible de vérifier le code.";
+        accessCodeInput.value = "";
+        accessCodeInput.focus();
+
+      } finally {
+        validateButton.disabled = false;
+        validateButton.textContent = "Valider mon code";
+      }
+    });
+
+    accessCodeInput.addEventListener("input", () => {
+      accessCodeInput.value = accessCodeInput.value
+        .replace(/\D/g, "")
+        .slice(0, 4);
+    });
+
+    accessCodeInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        validateButton.click();
+      }
     });
 
     hideButton.addEventListener("click", () => {
@@ -224,10 +324,28 @@
       recipientBox.textContent = "";
     });
 
-    drawButton.addEventListener("click", async () => {
-      const participantName = participantSelect.value;
+    changeCodeButton.addEventListener("click", () => {
+      currentToken = "";
+      drawing = false;
+      drawComplete = false;
 
-      if (!participantName || drawing) return;
+      loginSection.hidden = false;
+      accessInfo.style.display = "none";
+      drawButton.hidden = true;
+      drawButton.disabled = true;
+      changeCodeButton.hidden = true;
+
+      resultBox.style.display = "none";
+      recipientBox.textContent = "";
+      remainingBox.textContent = "";
+      statusBox.textContent = "";
+
+      accessCodeInput.value = "";
+      accessCodeInput.focus();
+    });
+
+    drawButton.addEventListener("click", async () => {
+      if (!currentToken || drawing || drawComplete) return;
 
       drawing = true;
       drawButton.disabled = true;
@@ -237,26 +355,12 @@
       resultBox.style.display = "none";
 
       try {
-        const response = await fetch(
-          `${SUPABASE_URL}/functions/v1/family-reveal`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "apikey": SUPABASE_KEY
-            },
-            body: JSON.stringify({
-              participant_name: participantName
-            })
-          }
-        );
+        const data = await callFunction("family-reveal", {
+          token: currentToken
+        });
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(
-            data.error || "Le tirage n'a pas fonctionné."
-          );
+        if (!data.success) {
+          throw new Error(data.error || "Le tirage n'a pas fonctionné.");
         }
 
         recipientBox.textContent = data.recipient;
@@ -265,16 +369,17 @@
         if (typeof data.remaining === "number") {
           if (data.remaining > 0) {
             remainingBox.textContent =
-              `${data.remaining} tirage(s) restant(s) pour ce choix.`;
+              `${data.remaining} tirage(s) restant(s).`;
           } else {
             remainingBox.textContent =
-              "Tous les tirages de ce choix sont terminés.";
+              "Tous les tirages de cet accès sont terminés.";
           }
         }
 
         statusBox.textContent = "Tirage réussi !";
 
         if (data.remaining === 0) {
+          drawComplete = true;
           drawButton.textContent = "Tirage terminé";
           drawButton.disabled = true;
         } else {
@@ -286,8 +391,17 @@
         statusBox.textContent =
           error.message || "Une erreur est survenue.";
 
-        drawButton.textContent = "Réessayer";
-        drawButton.disabled = false;
+        if (
+          error.message.includes("already been drawn") ||
+          error.message.includes("All cards for this group")
+        ) {
+          drawComplete = true;
+          drawButton.textContent = "Tirage terminé";
+          drawButton.disabled = true;
+        } else {
+          drawButton.textContent = "Réessayer";
+          drawButton.disabled = false;
+        }
 
       } finally {
         drawing = false;
