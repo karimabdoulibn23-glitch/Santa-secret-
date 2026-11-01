@@ -1,124 +1,394 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Family Secret Santa</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Secret Santa</title>
 
-<style>
-* {
-    box-sizing: border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #101b18;
-    color: white;
-    text-align: center;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 30px 16px;
+      font-family: Calibri, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #263858, #101a30 65%);
+      color: #f8f5ed;
+    }
 
-header {
-    padding: 25px 15px;
-}
+    .container {
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
+    }
 
-.logo {
-    font-size: 35px;
-}
+    .header {
+      text-align: center;
+      padding: 35px 15px;
+    }
 
-h1 {
-    font-size: 32px;
-    margin-bottom: 10px;
-}
+    .gift {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
 
-.subtitle {
-    color: #c3d1c9;
-    font-size: 15px;
-}
+    h1 {
+      font-size: 34px;
+      margin: 0 0 10px;
+    }
 
-.container {
-    max-width: 450px;
-    margin: 35px auto;
-    padding: 20px;
-}
+    .subtitle {
+      color: #c6cddd;
+      font-size: 16px;
+    }
 
-.card {
-    background: #1c3029;
-    border: 1px solid #355447;
-    border-radius: 18px;
-    padding: 30px 20px;
-    margin-top: 25px;
-}
+    .panel {
+      background: #ffffff;
+      color: #17233b;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 15px 40px #0004;
+    }
 
-.card h2 {
-    font-size: 23px;
-}
+    h2 {
+      margin-top: 0;
+      font-size: 23px;
+    }
 
-.description {
-    color: #c3d1c9;
-    line-height: 1.6;
-}
+    p {
+      line-height: 1.5;
+    }
 
-.gift {
-    font-size: 75px;
-    margin: 20px;
-}
+    input {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #d6dae2;
+      border-radius: 10px;
+      font-size: 16px;
+      margin: 12px 0;
+    }
 
-button {
-    background: #d7ad64;
-    color: #17221d;
-    border: none;
-    border-radius: 10px;
-    padding: 15px 25px;
-    font-size: 16px;
-    font-weight: bold;
-    width: 100%;
-    margin-top: 20px;
-}
+    button {
+      border: none;
+      border-radius: 10px;
+      background: #bd9655;
+      color: white;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-button:disabled {
-    opacity: 0.6;
-}
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
 
-footer {
-    color: #82968b;
-    font-size: 12px;
-    padding: 30px;
-}
-</style>
+    .main-button {
+      width: 100%;
+    }
+
+    .person-card {
+      border: 1px solid #e2e5eb;
+      background: #fafafa;
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 15px;
+    }
+
+    .person-name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 15px;
+      padding: 18px;
+      background: #edf5ef;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .result-name {
+      font-size: 25px;
+      font-weight: bold;
+      color: #28643e;
+      margin-top: 8px;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 15px;
+      color: #a13b36;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .footer {
+      text-align: center;
+      color: #c6cddd;
+      margin-top: 25px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
 
-<header>
-    <div class="logo">🎄</div>
-    <h1>Family Secret Santa</h1>
-    <p class="subtitle">A little surprise for someone special.</p>
-</header>
-
-<div class="container">
-
-    <div class="card">
-        <div class="gift">🎁</div>
-
-        <h2>Christmas is coming!</h2>
-
-        <p class="description">
-            Welcome to our family Secret Santa.
-            Get ready to discover the person
-            you will surprise this Christmas.
-        </p>
-
-        <button disabled>
-            Draw coming soon
-        </button>
+    <div class="header">
+      <div class="gift">🎁</div>
+      <h1>Family Secret Santa</h1>
+      <div class="subtitle">
+        A little surprise for Christmas
+      </div>
     </div>
 
-</div>
+    <div class="panel">
 
-<footer>
-    Family Secret Santa · Christmas 2026
-</footer>
+      <div id="login">
+        <h2>Welcome!</h2>
+        <p>Enter your personal access code to open your Secret Santa cards.</p>
 
+        <form id="loginForm">
+          <input
+            id="accessCode"
+            type="password"
+            placeholder="Enter your access code"
+            autocomplete="off"
+            required
+          >
+
+          <button class="main-button" id="loginButton" type="submit">
+            Continue
+          </button>
+        </form>
+      </div>
+
+      <div id="content" class="hidden"></div>
+
+      <div id="status" class="status"></div>
+
+    </div>
+
+    <div class="footer">
+      Made with love for our family ❤️
+    </div>
+
+  </div>
+
+  <script type="module">
+    const SUPABASE_URL =
+      "https://lwrsatgmvnsfjthqnoji.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_DyMTcdthXI4slB4t47SccA_tv58Qs5O";
+
+    const login = document.getElementById("login");
+    const content = document.getElementById("content");
+    const statusBox = document.getElementById("status");
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+    const accessInput = document.getElementById("accessCode");
+
+    let accessToken = "";
+
+    function showStatus(message, error = true) {
+      statusBox.textContent = message;
+      statusBox.style.color = error ? "#a13b36" : "#28643e";
+    }
+
+    async function callFunction(name, data) {
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/${name}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`
+          },
+          body: JSON.stringify(data)
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Something went wrong.");
+      }
+
+      return result;
+    }
+
+    function createElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    async function revealCard(person, button, resultBox) {
+      button.disabled = true;
+      button.textContent = "Opening your card...";
+
+      try {
+        const result = await callFunction("family-reveal", {
+          token: accessToken,
+          participant_id: person.id
+        });
+
+        resultBox.replaceChildren();
+
+        resultBox.appendChild(
+          createElement("p", "", "You are buying a gift for:")
+        );
+
+        resultBox.appendChild(
+          createElement("div", "result-name", result.recipient)
+        );
+
+        resultBox.style.display = "block";
+        button.textContent = "Card opened";
+        showStatus("Your Secret Santa card is ready!", false);
+
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = "Reveal card";
+
+        showStatus(error.message);
+      }
+    }
+
+    function createPersonCard(person, individual = false) {
+      const card = createElement("div", "person-card");
+
+      card.appendChild(
+        createElement("div", "person-name", person.name)
+      );
+
+      const button = createElement(
+        "button",
+        "",
+        individual ? "Reveal my recipient" : "Reveal card"
+      );
+
+      const resultBox = createElement("div", "result");
+
+      button.addEventListener("click", () => {
+        revealCard(person, button, resultBox);
+      });
+
+      card.appendChild(button);
+      card.appendChild(resultBox);
+
+      return card;
+    }
+
+    function displayAccess(data) {
+      login.classList.add("hidden");
+      content.classList.remove("hidden");
+      content.replaceChildren();
+      statusBox.textContent = "";
+
+      if (data.type === "group") {
+        content.appendChild(
+          createElement("h2", "", data.group.name)
+        );
+
+        content.appendChild(
+          createElement(
+            "p",
+            "",
+            "Choose one person's card at a time."
+          )
+        );
+
+        data.participants.forEach(person => {
+          content.appendChild(createPersonCard(person));
+        });
+
+      } else if (data.type === "individual") {
+        content.appendChild(
+          createElement("h2", "", "Your Secret Santa card")
+        );
+
+        content.appendChild(
+          createElement(
+            "p",
+            "",
+            "Your card is ready. Open it to discover your recipient."
+          )
+        );
+
+        content.appendChild(
+          createPersonCard(data.participant, true)
+        );
+      }
+    }
+
+    async function loginWithToken(token) {
+      if (!token) {
+        throw new Error("Please enter your access code.");
+      }
+
+      showStatus("Checking your access code...", false);
+      loginButton.disabled = true;
+
+      try {
+        const data = await callFunction("family-access", { token });
+
+        accessToken = token;
+        sessionStorage.setItem("secretSantaToken", token);
+
+        displayAccess(data);
+
+      } catch (error) {
+        showStatus(error.message);
+        login.classList.remove("hidden");
+        content.classList.add("hidden");
+
+      } finally {
+        loginButton.disabled = false;
+      }
+    }
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await loginWithToken(accessInput.value.trim());
+    });
+
+    // Read a code from the personal link
+    const params = new URLSearchParams(window.location.search);
+    const linkToken = params.get("code") || params.get("token");
+
+    if (linkToken) {
+      sessionStorage.setItem("secretSantaToken", linkToken);
+
+      // Remove the access code from the visible address
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+      );
+    }
+
+    // Reopen the session when the page is refreshed
+    const savedToken =
+      linkToken || sessionStorage.getItem("secretSantaToken");
+
+    if (savedToken) {
+      loginWithToken(savedToken);
+    }
+  </script>
 </body>
 </html>
